@@ -33,6 +33,7 @@ export const PYTHON_SCALARS = {
   Boolean: 'bool',
   Int: 'int',
   Float: 'float',
+  AWSDateTime: 'datetime',
 };
 
 const PYTHON_RESERVED = ['from'];
@@ -54,6 +55,7 @@ export class PydanticVisitor extends BaseVisitor<
   private addUnionImport = false;
   private addEnumImport = false;
   private addFieldImport = false;
+  private addDatetimeImport = true;
 
   private graph = new DepGraph({
     circular: false,
@@ -74,6 +76,7 @@ export class PydanticVisitor extends BaseVisitor<
   public getImports(): string {
     const typing = [];
     const pydantic = ['BaseModel'];
+    const datetime = [];
 
     if (this.addAnyImport) {
       typing.push(`Any`);
@@ -95,6 +98,10 @@ export class PydanticVisitor extends BaseVisitor<
       pydantic.push(`Field`);
     }
 
+    if (this.addDatetimeImport) {
+      datetime.push(`datetime`);
+    }
+
     const enumInput = this.addEnumImport ? 'from enum import Enum' : '';
 
     const typingImport = typing.length
@@ -105,7 +112,11 @@ export class PydanticVisitor extends BaseVisitor<
       ? `from pydantic import ${pydantic.join(', ')}`
       : '';
 
-    return [enumInput, typingImport, pydanticImport].filter(i => i).join('\n');
+    const datetimeImport = datetime.length
+        ? `from datetime import ${datetime.join(', ')}`
+        : '';
+
+    return [enumInput, typingImport, pydanticImport, datetimeImport].filter(i => i).join('\n');
   }
 
   protected canAddGraphNode(id: string): boolean {
@@ -158,6 +169,10 @@ export class PydanticVisitor extends BaseVisitor<
     // Scalars
     if (Object.keys(this.scalars).includes(name)) {
       const id = this.scalars[name];
+
+      if (id === 'datetime') {
+        this.addDatetimeImport = true;
+      }
 
       // Special case for any
       if (id === 'any') {
