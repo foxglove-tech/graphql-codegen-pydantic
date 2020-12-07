@@ -55,7 +55,7 @@ export class PydanticVisitor extends BaseVisitor<
   private addUnionImport = false;
   private addEnumImport = false;
   private addFieldImport = false;
-  private addDatetimeImport = true;
+  private addDatetimeImport = false;
 
   private graph = new DepGraph({
     circular: false,
