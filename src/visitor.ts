@@ -220,7 +220,8 @@ export class PydanticVisitor extends BaseVisitor<
   }
 
   protected visitFieldOrInputDefinition(node: any) {
-    const argName = snakeCase(node.name as any);
+    // const argName = snakeCase(node.name as any);
+    const argName = node.name as any;
 
     const { type, directives } = node as any;
 
