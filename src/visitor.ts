@@ -320,6 +320,7 @@ export class PydanticVisitor extends BaseVisitor<
   ObjectTypeDefinition(node: ObjectTypeDefinitionNode) {
     const { name, fields: rawFields, interfaces: rawInterfaces } = node as any;
 
+    rawFields.push({id: "int", source: indent("_version: int", 2)})
     const fields = rawFields.filter((f: any) => f);
 
     const interfaces = rawInterfaces.map((n: any) =>
