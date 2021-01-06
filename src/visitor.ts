@@ -194,7 +194,7 @@ export class PydanticVisitor extends BaseVisitor<
     this.addOptionalImport = true;
     return {
       id: name,
-      source: `Optional['${name}']`,
+      source: `Optional["${name}"]`,
     };
   }
 
@@ -220,7 +220,6 @@ export class PydanticVisitor extends BaseVisitor<
   }
 
   protected visitFieldOrInputDefinition(node: any) {
-    // const argName = snakeCase(node.name as any);
     const argName = node.name as any;
 
     const { type, directives } = node as any;
@@ -241,7 +240,7 @@ export class PydanticVisitor extends BaseVisitor<
       return {
         id: type.id,
         source: indent(
-          `${argName}_: ${type.source} = Field(None, alias='${argName}')`,
+          `${argName}_: ${type.source} = Field(None, alias="${argName}")`,
           2,
         ),
       };
@@ -267,7 +266,7 @@ export class PydanticVisitor extends BaseVisitor<
     const { name, values } = node as any;
 
     const val = values
-      .map((v: any) => indent(`${v.name} = '${v.name}'`, 2))
+      .map((v: any) => indent(`${v.name} = "${v.name}"`, 2))
       .join('\n');
     const source = `class ${name}(str, Enum):\n${val}`;
 
@@ -330,7 +329,10 @@ export class PydanticVisitor extends BaseVisitor<
     const impl = interfaces.length ? interfaces.join(', ') : 'BaseModel';
 
     const args = fields.map((f: any) => f.source).join('\n');
-    const source = `class ${name}(${impl}):\n${args}`;
+    const methods = indent("def __str__(self):", 2)
+        + "\n"
+        + indent("return self.value", 4);
+    const source = `class ${name}(${impl}):\n${args}\n\n${methods}`;
 
     if (interfaces.length) {
       this.addGraphNodeDeps(name, interfaces);
