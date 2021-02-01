@@ -80,11 +80,9 @@ export class PydanticVisitor extends BaseVisitor<
       // package: rawConfig.package || defaultPackageName,
       scalars: buildScalars(schema, {}, PYTHON_SCALARS),
     });
-    throw new Error("haha")
   }
 
   public getImports(): string {
-    throw new Error("haha")
     const typing = [];
     const pydantic = ['BaseModel'];
     const datetime = [];
@@ -332,7 +330,8 @@ export class PydanticVisitor extends BaseVisitor<
     const { name, fields: rawFields, interfaces: rawInterfaces } = node as any;
 
     rawFields.push({id: "int", source: indent("_version: int", 2)})
-    const fields = rawFields.filter((f: any) => f);
+    const fields = rawFields.filter((f: any) => f).filter((f: any) => f);
+    console.log({ rawFields, fields })
 
     const interfaces = rawInterfaces.map((n: any) =>
       this.clearOptional(n.source).replace(/'/g, ''),
