@@ -332,6 +332,8 @@ export class PydanticVisitor extends BaseVisitor<
 
     rawFields.push({id: "int", source: indent("_version: int", 2)})
     let fields = rawFields.filter((f: any) => f)
+    console.log("config", this.config)
+    console.log("config.omitFields", this.config.omitFields)
     if (this.config.omitFields) {
       fields = fields.filter((f: any) => {
         return this.config.omitFields.reduce((allow, key) => {
