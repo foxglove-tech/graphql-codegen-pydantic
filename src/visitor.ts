@@ -330,7 +330,11 @@ export class PydanticVisitor extends BaseVisitor<
     const { name, fields: rawFields, interfaces: rawInterfaces } = node as any;
 
     rawFields.push({id: "int", source: indent("_version: int", 2)})
-    const fields = rawFields.filter((f: any) => f).filter((f: any) => f);
+    const fields = rawFields.filter((f: any) => f).filter((f: any) => {
+      return ["mood"].reduce((allow, key) => {
+        return allow && !f.source.startsWith(`    ${key}:`)
+      }, true)
+    });
     console.log({ rawFields, fields })
 
     const interfaces = rawInterfaces.map((n: any) =>
