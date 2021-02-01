@@ -4,7 +4,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var graphql = require('graphql');
 var visitorPluginCommon = require('@graphql-codegen/visitor-plugin-common');
-var changeCase = require('change-case');
 var dependencyGraph = require('dependency-graph');
 
 /* eslint-disable lines-between-class-members */
@@ -38,42 +37,11 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
     this.graph = new dependencyGraph.DepGraph({
       circular: false
     });
+    throw new Error("haha");
   }
 
   getImports() {
-    const typing = [];
-    const pydantic = ['BaseModel'];
-    const datetime = [];
-
-    if (this.addAnyImport) {
-      typing.push(`Any`);
-    }
-
-    if (this.addOptionalImport) {
-      typing.push(`Optional`);
-    }
-
-    if (this.addListImport) {
-      typing.push(`List`);
-    }
-
-    if (this.addUnionImport) {
-      typing.push(`Union`);
-    }
-
-    if (this.addFieldImport) {
-      pydantic.push(`Field`);
-    }
-
-    if (this.addDatetimeImport) {
-      datetime.push(`datetime`);
-    }
-
-    const enumInput = this.addEnumImport ? 'from enum import Enum' : '';
-    const typingImport = typing.length ? `from typing import ${typing.join(', ')}` : '';
-    const pydanticImport = pydantic.length ? `from pydantic import ${pydantic.join(', ')}` : '';
-    const datetimeImport = datetime.length ? `from datetime import ${datetime.join(', ')}` : '';
-    return [enumInput, typingImport, pydanticImport, datetimeImport].filter(i => i).join('\n');
+    throw new Error("haha");
   }
 
   canAddGraphNode(id) {
@@ -150,7 +118,7 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
     this.addOptionalImport = true;
     return {
       id: name,
-      source: `Optional['${name}']`
+      source: `Optional["${name}"]`
     };
   }
 
@@ -177,7 +145,7 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
   }
 
   visitFieldOrInputDefinition(node) {
-    const argName = changeCase.snakeCase(node.name);
+    const argName = node.name;
     const {
       type,
       directives
@@ -197,7 +165,7 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
       this.addFieldImport = true;
       return {
         id: type.id,
-        source: visitorPluginCommon.indent(`${argName}_: ${type.source} = Field(None, alias='${argName}')`, 2)
+        source: visitorPluginCommon.indent(`${argName}_: ${type.source} = Field(None, alias="${argName}")`, 2)
       };
     }
 
@@ -221,7 +189,7 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
       name,
       values
     } = node;
-    const val = values.map(v => visitorPluginCommon.indent(`${v.name} = '${v.name}'`, 2)).join('\n');
+    const val = values.map(v => visitorPluginCommon.indent(`${v.name} = "${v.name}"`, 2)).join('\n');
     const source = `class ${name}(str, Enum):\n${val}`;
     this.upsertGraphNode(name);
     return {
@@ -236,7 +204,7 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
       name,
       types
     } = node;
-    const unionTypes = (types != null ? types : []).map(t => this.clearOptional(t.source));
+    const unionTypes = (types !== null && types !== void 0 ? types : []).map(t => this.clearOptional(t.source));
     this.addGraphNodeDeps(name, types.map(t => t.id));
     return {
       id: name,
@@ -265,11 +233,16 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
       fields: rawFields,
       interfaces: rawInterfaces
     } = node;
+    rawFields.push({
+      id: "int",
+      source: visitorPluginCommon.indent("_version: int", 2)
+    });
     const fields = rawFields.filter(f => f);
     const interfaces = rawInterfaces.map(n => this.clearOptional(n.source).replace(/'/g, ''));
     const impl = interfaces.length ? interfaces.join(', ') : 'BaseModel';
     const args = fields.map(f => f.source).join('\n');
-    const source = `class ${name}(${impl}):\n${args}`;
+    const methods = visitorPluginCommon.indent("def __str__(self):", 2) + "\n" + visitorPluginCommon.indent("return self.value", 4);
+    const source = `class ${name}(${impl}):\n${args}\n\n${methods}`;
 
     if (interfaces.length) {
       this.addGraphNodeDeps(name, interfaces);
@@ -306,21 +279,25 @@ class PydanticVisitor extends visitorPluginCommon.BaseVisitor {
     return nodesInOrder.map(n => {
       var _definitions$find;
 
-      return ((_definitions$find = definitions.find(d => d.id === n)) == null ? void 0 : _definitions$find.source) || '';
+      return ((_definitions$find = definitions.find(d => d.id === n)) === null || _definitions$find === void 0 ? void 0 : _definitions$find.source) || '';
     }).join('\n\n\n');
   }
 
 }
 
-const plugin = async (schema, documents, config, info) => {
-  const visitor = new PydanticVisitor(config, schema);
-  const printedSchema = graphql.printSchema(schema);
-  const astNode = graphql.parse(printedSchema);
-  const visitorResult = graphql.visit(astNode, {
-    leave: visitor
-  });
-  const imports = visitor.getImports();
-  return `${imports}\n\n\n${visitorResult}\n`;
+const plugin = function (schema, documents, config, info) {
+  try {
+    const visitor = new PydanticVisitor(config, schema);
+    const printedSchema = graphql.printSchema(schema);
+    const astNode = graphql.parse(printedSchema);
+    const visitorResult = graphql.visit(astNode, {
+      leave: visitor
+    });
+    const imports = visitor.getImports();
+    return Promise.resolve(`${imports}\n\n\n${visitorResult}\n`);
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 exports.plugin = plugin;

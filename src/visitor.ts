@@ -3,29 +3,38 @@
 /* eslint-disable react/no-this-in-sfc */
 import {
   BaseVisitor,
-  ParsedConfig,
-  buildScalars,
-  indent,
-} from '@graphql-codegen/visitor-plugin-common';
-import {
-  NamedTypeNode,
-  ListTypeNode,
-  NonNullTypeNode,
-  GraphQLSchema,
-  FieldDefinitionNode,
-  ObjectTypeDefinitionNode,
-  NameNode,
-  UnionTypeDefinitionNode,
-  DocumentNode,
-  InterfaceTypeDefinitionNode,
-  EnumTypeDefinitionNode,
-  InputObjectTypeDefinitionNode,
-  InputValueDefinitionNode,
-} from 'graphql';
-import { snakeCase } from 'change-case';
-import { DepGraph } from 'dependency-graph';
 
+  buildScalars,
+  indent, ParsedConfig
+} from '@graphql-codegen/visitor-plugin-common';
+import { DepGraph } from 'dependency-graph';
+import {
+  DocumentNode,
+
+  EnumTypeDefinitionNode, FieldDefinitionNode, GraphQLSchema,
+
+
+
+
+
+
+
+  InputObjectTypeDefinitionNode,
+  InputValueDefinitionNode, InterfaceTypeDefinitionNode, ListTypeNode, NamedTypeNode,
+
+
+
+
+
+  NameNode, NonNullTypeNode,
+
+
+  ObjectTypeDefinitionNode,
+
+  UnionTypeDefinitionNode
+} from 'graphql';
 import { PydanticPluginRawConfig } from './config';
+
 
 export const PYTHON_SCALARS = {
   ID: 'str',
@@ -71,9 +80,11 @@ export class PydanticVisitor extends BaseVisitor<
       // package: rawConfig.package || defaultPackageName,
       scalars: buildScalars(schema, {}, PYTHON_SCALARS),
     });
+    throw new Error("haha")
   }
 
   public getImports(): string {
+    throw new Error("haha")
     const typing = [];
     const pydantic = ['BaseModel'];
     const datetime = [];
