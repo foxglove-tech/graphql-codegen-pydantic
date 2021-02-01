@@ -52,6 +52,7 @@ const RESERVED = PYTHON_RESERVED.concat(PYDANTIC_MODEL_RESERVED);
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PydanticPluginParsedConfig extends ParsedConfig {
   /* intentionally empty for now */
+  omitFields: string[]
 }
 
 export class PydanticVisitor extends BaseVisitor<
@@ -330,13 +331,15 @@ export class PydanticVisitor extends BaseVisitor<
     const { name, fields: rawFields, interfaces: rawInterfaces } = node as any;
 
     rawFields.push({id: "int", source: indent("_version: int", 2)})
-    const fields = rawFields.filter((f: any) => f).filter((f: any) => {
-      return ["mood"].reduce((allow, key) => {
-        return allow && !f.source.startsWith(`    ${key}:`)
-      }, true)
-    });
-    console.log({ rawFields, fields })
-
+    let fields = rawFields.filter((f: any) => f)
+    if (this.config.omitFields) {
+      fields = fields.filter((f: any) => {
+        return this.config.omitFields.reduce((allow, key) => {
+          return allow && !f.source.startsWith(`    ${key}:`)
+        }, true)
+      });
+    }
+    
     const interfaces = rawInterfaces.map((n: any) =>
       this.clearOptional(n.source).replace(/'/g, ''),
     );
