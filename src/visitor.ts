@@ -3,36 +3,28 @@
 /* eslint-disable react/no-this-in-sfc */
 import {
   BaseVisitor,
-
+  ParsedConfig,
   buildScalars,
-  indent, ParsedConfig
+  indent,
 } from '@graphql-codegen/visitor-plugin-common';
-import { DepGraph } from 'dependency-graph';
 import {
-  DocumentNode,
-
-  EnumTypeDefinitionNode, FieldDefinitionNode, GraphQLSchema,
-
-
-
-
-
-
-
-  InputObjectTypeDefinitionNode,
-  InputValueDefinitionNode, InterfaceTypeDefinitionNode, ListTypeNode, NamedTypeNode,
-
-
-
-
-
-  NameNode, NonNullTypeNode,
-
-
+  NamedTypeNode,
+  ListTypeNode,
+  NonNullTypeNode,
+  GraphQLSchema,
+  FieldDefinitionNode,
   ObjectTypeDefinitionNode,
-
-  UnionTypeDefinitionNode
+  NameNode,
+  UnionTypeDefinitionNode,
+  DocumentNode,
+  InterfaceTypeDefinitionNode,
+  EnumTypeDefinitionNode,
+  InputObjectTypeDefinitionNode,
+  InputValueDefinitionNode,
 } from 'graphql';
+import { snakeCase } from 'change-case';
+import { DepGraph } from 'dependency-graph';
+
 import { PydanticPluginRawConfig } from './config';
 
 
@@ -333,8 +325,6 @@ export class PydanticVisitor extends BaseVisitor<
 
     rawFields.push({id: "int", source: indent("_version: int", 2)})
     let fields = rawFields.filter((f: any) => f)
-    console.log("config", this.config)
-    console.log("config.omitFields", this.config.omitFields)
     if (this.config.omitFields) {
       fields = fields.filter((f: any) => {
         return this.config.omitFields.reduce((allow, key) => {

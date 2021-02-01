@@ -11,7 +11,6 @@ export const plugin: PluginFunction<PydanticPluginRawConfig> = async (
   config: PydanticPluginRawConfig,
   info,
 ): Promise<string> => {
-  console.log("config in index", config)
   const visitor = new PydanticVisitor(config, schema);
   const printedSchema = printSchema(schema);
   const astNode = parse(printedSchema);
