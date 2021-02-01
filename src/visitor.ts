@@ -80,6 +80,7 @@ export class PydanticVisitor extends BaseVisitor<
       // listType: rawConfig.listType || 'List',
       // package: rawConfig.package || defaultPackageName,
       scalars: buildScalars(schema, {}, PYTHON_SCALARS),
+      omitFields: rawConfig.omitFields
     });
   }
 
