@@ -1,8 +1,8 @@
-import { parse, GraphQLSchema, printSchema, visit } from 'graphql';
 import { PluginFunction, Types } from '@graphql-codegen/plugin-helpers';
-
-import { PydanticVisitor } from './visitor';
+import { GraphQLSchema, parse, printSchema, visit } from 'graphql';
 import { PydanticPluginRawConfig } from './config';
+import { PydanticVisitor } from './visitor';
+
 
 // eslint-disable-next-line import/prefer-default-export
 export const plugin: PluginFunction<PydanticPluginRawConfig> = async (

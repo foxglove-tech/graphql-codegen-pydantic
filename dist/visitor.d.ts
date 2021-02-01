@@ -1,5 +1,5 @@
 import { BaseVisitor, ParsedConfig } from '@graphql-codegen/visitor-plugin-common';
-import { NamedTypeNode, ListTypeNode, NonNullTypeNode, GraphQLSchema, FieldDefinitionNode, ObjectTypeDefinitionNode, NameNode, UnionTypeDefinitionNode, DocumentNode, InterfaceTypeDefinitionNode, EnumTypeDefinitionNode, InputObjectTypeDefinitionNode, InputValueDefinitionNode } from 'graphql';
+import { DocumentNode, EnumTypeDefinitionNode, FieldDefinitionNode, GraphQLSchema, InputObjectTypeDefinitionNode, InputValueDefinitionNode, InterfaceTypeDefinitionNode, ListTypeNode, NamedTypeNode, NameNode, NonNullTypeNode, ObjectTypeDefinitionNode, UnionTypeDefinitionNode } from 'graphql';
 import { PydanticPluginRawConfig } from './config';
 export declare const PYTHON_SCALARS: {
     ID: string;
