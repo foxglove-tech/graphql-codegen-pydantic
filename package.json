@@ -28,7 +28,7 @@
   },
   "peerDependencies": {
     "@graphql-codegen/cli": "^1.13.1",
-    "graphql": "^14.6.0"
+    "graphql": "^14.6.0 || ^15.4.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.13.1",

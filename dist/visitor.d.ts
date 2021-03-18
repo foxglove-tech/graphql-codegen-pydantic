@@ -1,5 +1,5 @@
 import { BaseVisitor, ParsedConfig } from '@graphql-codegen/visitor-plugin-common';
-import { DocumentNode, EnumTypeDefinitionNode, FieldDefinitionNode, GraphQLSchema, InputObjectTypeDefinitionNode, InputValueDefinitionNode, InterfaceTypeDefinitionNode, ListTypeNode, NamedTypeNode, NameNode, NonNullTypeNode, ObjectTypeDefinitionNode, UnionTypeDefinitionNode } from 'graphql';
+import { NamedTypeNode, ListTypeNode, NonNullTypeNode, GraphQLSchema, FieldDefinitionNode, ObjectTypeDefinitionNode, NameNode, UnionTypeDefinitionNode, DocumentNode, InterfaceTypeDefinitionNode, EnumTypeDefinitionNode, InputObjectTypeDefinitionNode, InputValueDefinitionNode } from 'graphql';
 import { PydanticPluginRawConfig } from './config';
 export declare const PYTHON_SCALARS: {
     ID: string;
@@ -10,6 +10,7 @@ export declare const PYTHON_SCALARS: {
     AWSDateTime: string;
 };
 export interface PydanticPluginParsedConfig extends ParsedConfig {
+    omitFields: string[];
 }
 export declare class PydanticVisitor extends BaseVisitor<PydanticPluginRawConfig, PydanticPluginParsedConfig> {
     private schema;

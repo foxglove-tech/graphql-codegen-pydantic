@@ -20,7 +20,8 @@ class PydanticVisitor extends BaseVisitor {
       // enumValues: rawConfig.enumValues || {},
       // listType: rawConfig.listType || 'List',
       // package: rawConfig.package || defaultPackageName,
-      scalars: buildScalars(schema, {}, PYTHON_SCALARS)
+      scalars: buildScalars(schema, {}, PYTHON_SCALARS),
+      omitFields: rawConfig.omitFields
     });
     this.schema = schema;
     this.addOptionalImport = false;
@@ -33,11 +34,42 @@ class PydanticVisitor extends BaseVisitor {
     this.graph = new DepGraph({
       circular: false
     });
-    throw new Error("haha");
   }
 
   getImports() {
-    throw new Error("haha");
+    const typing = [];
+    const pydantic = ['BaseModel'];
+    const datetime = [];
+
+    if (this.addAnyImport) {
+      typing.push(`Any`);
+    }
+
+    if (this.addOptionalImport) {
+      typing.push(`Optional`);
+    }
+
+    if (this.addListImport) {
+      typing.push(`List`);
+    }
+
+    if (this.addUnionImport) {
+      typing.push(`Union`);
+    }
+
+    if (this.addFieldImport) {
+      pydantic.push(`Field`);
+    }
+
+    if (this.addDatetimeImport) {
+      datetime.push(`datetime`);
+    }
+
+    const enumInput = this.addEnumImport ? 'from enum import Enum' : '';
+    const typingImport = typing.length ? `from typing import ${typing.join(', ')}` : '';
+    const pydanticImport = pydantic.length ? `from pydantic import ${pydantic.join(', ')}` : '';
+    const datetimeImport = datetime.length ? `from datetime import ${datetime.join(', ')}` : '';
+    return [enumInput, typingImport, pydanticImport, datetimeImport].filter(i => i).join('\n');
   }
 
   canAddGraphNode(id) {
@@ -233,7 +265,16 @@ class PydanticVisitor extends BaseVisitor {
       id: "int",
       source: indent("_version: int", 2)
     });
-    const fields = rawFields.filter(f => f);
+    let fields = rawFields.filter(f => f);
+
+    if (this.config.omitFields) {
+      fields = fields.filter(f => {
+        return this.config.omitFields.reduce((allow, key) => {
+          return allow && !f.source.startsWith(`    ${key}:`);
+        }, true);
+      });
+    }
+
     const interfaces = rawInterfaces.map(n => this.clearOptional(n.source).replace(/'/g, ''));
     const impl = interfaces.length ? interfaces.join(', ') : 'BaseModel';
     const args = fields.map(f => f.source).join('\n');
